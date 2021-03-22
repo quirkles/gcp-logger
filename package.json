@@ -6,7 +6,7 @@
   "types": "build/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "prepublish": "npm run lint && npm run build",
+    "publish": "npm run lint && npm run build && npm publish",
     "lint": "eslint src"
   },
   "keywords": [],
