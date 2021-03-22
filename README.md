@@ -15,12 +15,14 @@ You need to have (set up authentication)[https://cloud.google.com/docs/authentic
 ```javascript
 import {createLogger, Logger} from "./index";
 
-logger: Logger = createLogger("my-cloud-function-logger") // <- logger name 
+logger: Logger = createLogger(
+    "my-project",  // <- gcp proiject id
+    "my-cloud-function-logger"  // <- logger name
+) 
     .setResourceType("cloud_function") // <- resource type
     .addLabel("eventId", context.eventId) // <- add a value to the log entry label 
     .mergeToResourceLabels({
-        function_name: "save-scaled-price",
-        project_id: "makegoodfood-analytics",
+        function_name: "my-function",
     }); // <- add a value to the log entry resource label
 
 if (process.env.ENV === "local") {

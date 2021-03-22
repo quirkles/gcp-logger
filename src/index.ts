@@ -50,8 +50,7 @@ export interface Logger {
 
   enableConsoleLogging(): Logger;
 }
-export const createLogger = (logName: string): Logger => {
-  const projectId = "makegoodfood-analytics";
+export const createLogger = (projectId: string, logName: string): Logger => {
   const logging = new Logging({ projectId });
   const log = logging.log(logName);
   let logToConsole = false;
