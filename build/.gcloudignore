@@ -1,0 +1,10 @@
+.git
+.idea
+.gcloudignore
+.gitignore
+
+node_modules/
+
+**/.nvmrc
+**/package-lock.json
+**/node_modules/

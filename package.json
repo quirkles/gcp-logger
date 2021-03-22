@@ -1,0 +1,23 @@
+{
+  "name": "save-scrape-results",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest --config=./jest.config.js \"**/*.spec,js\"",
+    "deploy": "gcloud functions deploy makegoodfood-save-scrape-results-http --ignore-file=.gcloudignore --entry-point=main --source=./build --runtime nodejs14 --service-account=cloudexecute@makegoodfood-analytics.iam.gserviceaccount.com"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google-cloud/logging": "^9.1.0",
+    "@google-cloud/pubsub": "^2.10.0",
+    "@google-cloud/secret-manager": "^3.5.0",
+    "apify-client": "^1.0.4",
+    "install": "^0.13.0",
+    "mysql": "^2.18.1",
+    "npm": "^7.6.2",
+    "typeorm": "^0.2.31"
+  }
+}
