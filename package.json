@@ -1,23 +1,27 @@
 {
-  "name": "save-scrape-results",
+  "name": "gcp-logger-wrapper",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A small wrapper arounf the gcp logger client",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "test": "jest --config=./jest.config.js \"**/*.spec,js\"",
-    "deploy": "gcloud functions deploy makegoodfood-save-scrape-results-http --ignore-file=.gcloudignore --entry-point=main --source=./build --runtime nodejs14 --service-account=cloudexecute@makegoodfood-analytics.iam.gserviceaccount.com"
+    "build": "tsc",
+    "prepublish": "npm run build",
+    "lint": "eslint src"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google-cloud/logging": "^9.1.0",
-    "@google-cloud/pubsub": "^2.10.0",
-    "@google-cloud/secret-manager": "^3.5.0",
-    "apify-client": "^1.0.4",
-    "install": "^0.13.0",
-    "mysql": "^2.18.1",
-    "npm": "^7.6.2",
-    "typeorm": "^0.2.31"
+    "@google-cloud/logging": "^9.1.0"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.18.0",
+    "@typescript-eslint/parser": "^4.18.0",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "prettier": "2.2.1",
+    "typescript": "^4.2.3"
   }
 }

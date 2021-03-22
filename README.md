@@ -13,18 +13,18 @@ The logger from gcp required configuration and setup that can be normalized and 
 You need to have (set up authentication)[https://cloud.google.com/docs/authentication/production] for a service account permitted to read and write logs.
 
 ```javascript
-import { createLogger, Logger } from "./logger";
+import {createLogger, Logger} from "./index";
 
 logger: Logger = createLogger("my-cloud-function-logger") // <- logger name 
     .setResourceType("cloud_function") // <- resource type
     .addLabel("eventId", context.eventId) // <- add a value to the log entry label 
     .mergeToResourceLabels({
-      function_name: "save-scaled-price",
-      project_id: "makegoodfood-analytics",
+        function_name: "save-scaled-price",
+        project_id: "makegoodfood-analytics",
     }); // <- add a value to the log entry resource label
 
-  if (process.env.ENV === "local") {
+if (process.env.ENV === "local") {
     logger.enableConsoleLogging(); // <- will pipe logs to the console in addition to the google log explorer
-  }
+}
 
 ```

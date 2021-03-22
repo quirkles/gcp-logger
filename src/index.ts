@@ -1,4 +1,4 @@
-import {Logging, Severity, SeverityNames} from "@google-cloud/logging";
+import { Logging } from "@google-cloud/logging";
 import { Metadata } from "@google-cloud/logging/build/src/log";
 
 export interface Logger {
