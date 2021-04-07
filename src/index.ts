@@ -1,5 +1,26 @@
+import { randomBytes } from "crypto";
+
 import { Logging } from "@google-cloud/logging";
-import { Metadata } from "@google-cloud/logging/build/src/log";
+import { ApiResponse, Metadata } from "@google-cloud/logging/build/src/log";
+
+export type LogLevel =
+  | "emergency"
+  | "alert"
+  | "critical"
+  | "error"
+  | "warning"
+  | "notice"
+  | "info"
+  | "debug";
+
+type SubscriptionCallBack = () => void;
+type UnsubscribeFunction = () => void;
+
+export interface Subscription {
+  logLevel: LogLevel;
+  id: string;
+  callBack: SubscriptionCallBack;
+}
 
 export interface Logger {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -49,11 +70,16 @@ export interface Logger {
   setResourceType(resourceType: string): Logger;
 
   enableConsoleLogging(): Logger;
+
+  on(logLevel: LogLevel, callback: SubscriptionCallBack): UnsubscribeFunction;
 }
+
 export const createLogger = (projectId: string, logName: string): Logger => {
   const logging = new Logging({ projectId });
   const log = logging.log(logName);
   let logToConsole = false;
+
+  let subscriptions: Subscription[] = [];
 
   const baseMetaData: Metadata = {
     resource: {
@@ -63,15 +89,15 @@ export const createLogger = (projectId: string, logName: string): Logger => {
     labels: {},
   };
 
-  const writeLog = (severity: string) => (
+  const writeLog = (severity: LogLevel) => (
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     additionalData: Record<string, any> | string,
     message?: string | Record<string, unknown>
-  ) => {
+  ): Promise<ApiResponse> => {
     let logMessage: string | Record<string, unknown>;
     const baseMetaDataWithSeverity: Metadata = {
       ...baseMetaData,
-      severity,
+      severity: severity.toUpperCase(),
     };
     if (!message) {
       logMessage = additionalData;
@@ -87,7 +113,17 @@ export const createLogger = (projectId: string, logName: string): Logger => {
         console.log(message);
       }
     }
-    return log.write(entry);
+    return log.write(entry).then((metaData) => {
+      subscriptions
+        .filter((sub) => sub.logLevel === severity)
+        .map((sub) => sub.callBack)
+        .forEach((cb) => {
+          try {
+            cb();
+          } catch {}
+        });
+      return metaData;
+    });
   };
 
   return {
@@ -121,13 +157,26 @@ export const createLogger = (projectId: string, logName: string): Logger => {
       baseMetaData.resource.type = resourceType;
       return this;
     },
-    emergency: writeLog("EMERGENCY"),
-    alert: writeLog("ALERT"),
-    critical: writeLog("CRITICAL"),
-    error: writeLog("ERROR"),
-    warning: writeLog("WARNING"),
-    notice: writeLog("NOTICE"),
-    info: writeLog("INFO"),
-    debug: writeLog("DEBUG"),
+    emergency: writeLog("emergency"),
+    alert: writeLog("alert"),
+    critical: writeLog("critical"),
+    error: writeLog("error"),
+    warning: writeLog("warning"),
+    notice: writeLog("notice"),
+    info: writeLog("info"),
+    debug: writeLog("debug"),
+    on(logLevel, callBack) {
+      const id = `${Date.now()}-${randomBytes(128).toString("hex")}`;
+      subscriptions.push({
+        id,
+        logLevel,
+        callBack,
+      });
+      return () => {
+        subscriptions = subscriptions.filter(
+          (sub) => !(sub.logLevel === logLevel && sub.id !== id)
+        );
+      };
+    },
   };
 };
