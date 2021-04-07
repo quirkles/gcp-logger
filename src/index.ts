@@ -14,7 +14,8 @@ export type LogLevel =
   | "debug";
 
 type LogWriter = (
-  additionalDataOrMessage: Record<string, unknown> | string,
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  additionalDataOrMessage: Error | object | string,
   maybeMessage?: string
 ) => Promise<ApiResponse>;
 
