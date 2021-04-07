@@ -19,12 +19,18 @@ type LogWriter = (
   maybeMessage?: string
 ) => Promise<ApiResponse>;
 
+type SubscriptionCallback = (
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  additionalDataOrMessage: Error | object | string,
+  maybeMessage?: string
+) => unknown;
+
 type UnsubscribeFunction = () => void;
 
 export interface Subscription {
   logLevel: LogLevel;
   id: string;
-  callBack: LogWriter;
+  callBack: SubscriptionCallback;
 }
 
 export interface Logger {
