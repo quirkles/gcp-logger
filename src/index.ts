@@ -51,7 +51,7 @@ export interface Logger {
 
   enableConsoleLogging(): Logger;
 
-  on(logLevel: LogLevel, callback: LogWriter): UnsubscribeFunction;
+  on(logLevel: LogLevel, callback: SubscriptionCallback): UnsubscribeFunction;
 }
 
 export const createLogger = (projectId: string, logName: string): Logger => {
@@ -104,7 +104,7 @@ export const createLogger = (projectId: string, logName: string): Logger => {
         .forEach((callBack) => {
           try {
             if (additionalData) {
-              (callBack as LogWriter)(
+              (callBack as SubscriptionCallback)(
                 additionalData as Record<string, unknown>,
                 message as string
               );

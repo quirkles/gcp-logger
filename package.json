@@ -1,6 +1,6 @@
 {
   "name": "gcp-logger-wrapper",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "A small wrapper around the gcp logger client",
   "main": "build/index.js",
   "types": "build/index.d.ts",
