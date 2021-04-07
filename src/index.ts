@@ -19,11 +19,8 @@ type LogWriter = (
   maybeMessage?: string
 ) => Promise<ApiResponse>;
 
-type SubscriptionCallback = (
-  // eslint-disable-next-line @typescript-eslint/ban-types
-  additionalDataOrMessage: Error | object | string,
-  maybeMessage?: string
-) => unknown;
+// eslint-disable-next-line @typescript-eslint/ban-types
+type SubscriptionCallback = (logMessage: object | string) => unknown;
 
 type UnsubscribeFunction = () => void;
 
@@ -103,14 +100,7 @@ export const createLogger = (projectId: string, logName: string): Logger => {
         .map((sub) => sub.callBack)
         .forEach((callBack) => {
           try {
-            if (additionalData) {
-              (callBack as SubscriptionCallback)(
-                additionalData as Record<string, unknown>,
-                message as string
-              );
-            } else {
-              (callBack as LogWriter)(message);
-            }
+            (callBack as LogWriter)(logMessage);
           } catch {}
         });
       return metaData;
