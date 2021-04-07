@@ -13,55 +13,28 @@ export type LogLevel =
   | "info"
   | "debug";
 
-type SubscriptionCallBack = () => void;
+type LogWriter = (
+  additionalDataOrMessage: Record<string, unknown> | string,
+  maybeMessage?: string
+) => Promise<ApiResponse>;
+
 type UnsubscribeFunction = () => void;
 
 export interface Subscription {
   logLevel: LogLevel;
   id: string;
-  callBack: SubscriptionCallBack;
+  callBack: LogWriter;
 }
 
 export interface Logger {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  emergency(additionalData: Record<string, any>, message: string): void;
-  emergency(data: Record<string, unknown>): void;
-  emergency(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  alert(additionalData: Record<string, any>, message: string): void;
-  alert(data: Record<string, unknown>): void;
-  alert(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  critical(additionalData: Record<string, any>, message: string): void;
-  critical(data: Record<string, unknown>): void;
-  critical(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  error(additionalData: Record<string, any>, message: string): void;
-  error(data: Record<string, unknown>): void;
-  error(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  warning(additionalData: Record<string, any>, message: string): void;
-  warning(data: Record<string, unknown>): void;
-  warning(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  notice(additionalData: Record<string, any>, message: string): void;
-  notice(data: Record<string, unknown>): void;
-  notice(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  info(additionalData: Record<string, any>, message: string): void;
-  info(data: Record<string, unknown>): void;
-  info(message: string): void;
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  debug(additionalData: Record<string, any>, message: string): void;
-  debug(data: Record<string, unknown>): void;
-  debug(message: string): void;
+  emergency: LogWriter;
+  alert: LogWriter;
+  critical: LogWriter;
+  error: LogWriter;
+  warning: LogWriter;
+  notice: LogWriter;
+  info: LogWriter;
+  debug: LogWriter;
 
   addLabel(propName: string, value: string): Logger;
   addResourceLabel(propName: string, value: string): Logger;
@@ -71,7 +44,7 @@ export interface Logger {
 
   enableConsoleLogging(): Logger;
 
-  on(logLevel: LogLevel, callback: SubscriptionCallBack): UnsubscribeFunction;
+  on(logLevel: LogLevel, callback: LogWriter): UnsubscribeFunction;
 }
 
 export const createLogger = (projectId: string, logName: string): Logger => {
@@ -88,38 +61,49 @@ export const createLogger = (projectId: string, logName: string): Logger => {
     },
     labels: {},
   };
-
-  const writeLog = (severity: LogLevel) => (
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    additionalData: Record<string, any> | string,
-    message?: string | Record<string, unknown>
-  ): Promise<ApiResponse> => {
-    let logMessage: string | Record<string, unknown>;
+  const writeLog = (severity: LogLevel): LogWriter => (
+    additionalDataOrMessage,
+    maybeMessage
+  ) => {
+    let additionalData: Record<string, unknown> | null = null;
+    let message: string;
+    if (maybeMessage) {
+      additionalData = additionalDataOrMessage as Record<string, unknown>;
+      message = maybeMessage as string;
+    } else {
+      message = additionalDataOrMessage as string;
+    }
     const baseMetaDataWithSeverity: Metadata = {
       ...baseMetaData,
       severity: severity.toUpperCase(),
     };
-    if (!message) {
-      logMessage = additionalData;
+    let logMessage: string | Record<string, unknown>;
+    if (!additionalData) {
+      logMessage = message;
     } else {
-      logMessage = { additionalData, message };
+      logMessage = {
+        additionalData,
+        message,
+      };
     }
     const entry = log.entry(baseMetaDataWithSeverity, logMessage);
     if (logToConsole) {
-      if (additionalData) {
-        console.log(additionalData);
-      }
-      if (message) {
-        console.log(message);
-      }
+      console.log(logMessage);
     }
     return log.write(entry).then((metaData) => {
       subscriptions
         .filter((sub) => sub.logLevel === severity)
         .map((sub) => sub.callBack)
-        .forEach((cb) => {
+        .forEach((callBack) => {
           try {
-            cb();
+            if (additionalData) {
+              (callBack as LogWriter)(
+                additionalData as Record<string, unknown>,
+                message as string
+              );
+            } else {
+              (callBack as LogWriter)(message);
+            }
           } catch {}
         });
       return metaData;
