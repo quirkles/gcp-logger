@@ -13,7 +13,9 @@ export type LogLevel =
   | "info"
   | "debug";
 
-export type LogMessage = string | {  message: string; additionalData: Record<string, unknown> }
+export type LogMessage =
+  | string
+  | { message: string; additionalData: Record<string, unknown> };
 
 type LogWriter = (
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -22,7 +24,7 @@ type LogWriter = (
 ) => Promise<ApiResponse>;
 
 // eslint-disable-next-line @typescript-eslint/ban-types
-type SubscriptionCallback = (logMessage: object | string) => unknown;
+type SubscriptionCallback = (logMessage: LogMessage) => unknown;
 
 type UnsubscribeFunction = () => void;
 
