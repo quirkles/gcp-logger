@@ -13,6 +13,8 @@ export type LogLevel =
   | "info"
   | "debug";
 
+export type LogMessage = string | {  message: string; additionalData: Record<string, unknown> }
+
 type LogWriter = (
   // eslint-disable-next-line @typescript-eslint/ban-types
   additionalDataOrMessage: Error | object | string,
@@ -81,7 +83,7 @@ export const createLogger = (projectId: string, logName: string): Logger => {
       ...baseMetaData,
       severity: severity.toUpperCase(),
     };
-    let logMessage: string | Record<string, unknown>;
+    let logMessage: LogMessage;
     if (!additionalData) {
       logMessage = message;
     } else {
