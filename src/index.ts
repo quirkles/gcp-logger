@@ -15,7 +15,8 @@ export type LogLevel =
 
 export type LogMessage =
   | string
-  | { message: string; additionalData: Record<string, unknown> };
+  | Error
+  | { message: string; additionalData: Record<string, unknown> | Error };
 
 type LogWriter = (
   // eslint-disable-next-line @typescript-eslint/ban-types
