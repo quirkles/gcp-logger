@@ -16,6 +16,9 @@
     "@google-cloud/logging": "^9.1.0",
     "npm": "^7.6.3"
   },
+  "publishConfig":{
+    "registry":"http://https://makegoodfood.jfrog.io//artifactory/api/npm/npm-remote/"
+  },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
